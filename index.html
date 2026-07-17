@@ -267,7 +267,7 @@
                 <video id="playback" style="display:none;" controls></video>
             </div>
             
-            <div class="action-buttons style="width:100%">
+            <div style="width:100%">
                 <div class="action-btns">
                     <button id="startRecBtn" class="btn btn-record" onclick="startRecording()">Record</button>
                     <button id="stopRecBtn" class="btn btn-stop" onclick="stopRecording()" disabled>Stop</button>
@@ -279,29 +279,42 @@
     </div>
 
     <script>
-        // Dare database divided by tiers
-        const dareBank = {
+        // Master Dare Bank
+        const masterDareBank = {
             chill: [
                 "Text your crush just the word 'Pineapple' and don't reply.",
                 "Do 20 pushups while singing your national anthem.",
                 "Let the group talk for 1 minute using only emojis.",
                 "Talk in an accent chosen by the group for the next 3 minutes.",
-                "Call a random contact and sing 'Happy Birthday' then hang up."
+                "Call a random contact and sing 'Happy Birthday' then hang up.",
+                "Balance a spoon on your nose for 45 seconds.",
+                "Let the person to your left text anything to your status."
             ],
             wild: [
                 "Smell the bare foot of the person to your right.",
                 "Let a friend scroll through your camera roll for 30 seconds.",
                 "Post a terribly unflattering selfie to your story right now.",
                 "Mix 3 random liquids from the kitchen and take a shot.",
-                "Put ice cubes down your pants and keep them there for 30 seconds."
+                "Put ice cubes down your pants and keep them there for 30 seconds.",
+                "Let the group redesign your hairstyle using only water and a comb.",
+                "Serenade a random household object with passion."
             ],
             extreme: [
                 "Call a pizza place and try to break up with them.",
                 "Let the group text anything they want to your 3rd recent text contact.",
                 "Eat a raw piece of garlic or a spoonful of hot sauce right now.",
                 "Go outside and yell 'I AM THE LIZARD KING' at the top of your lungs.",
-                "Crack a raw egg over your head."
+                "Crack a raw egg over your head.",
+                "Give your phone unlocked to the group for the next two rounds.",
+                "Let the group choose an item of your clothes to soak completely in water."
             ]
+        };
+
+        // Active game state pools (will change dynamically as dares get discarded)
+        let activePools = {
+            chill: [...masterDareBank.chill],
+            wild: [...masterDareBank.wild],
+            extreme: [...masterDareBank.extreme]
         };
 
         let currentMode = 'chill';
@@ -310,10 +323,10 @@
         let currentRotation = 0;
         let isSpinning = false;
 
-        // Draw custom Canvas Wheel based on current pool length
+        // Draw custom Canvas Wheel based on current active pool remaining size
         function drawWheel() {
-            const items = dareBank[currentMode];
-            const numSegments = items.length;
+            const currentItems = activePools[currentMode];
+            const numSegments = currentItems.length;
             const anglePerSegment = (2 * Math.PI) / numSegments;
             const colors = ['#ff007f', '#7000ff', '#1a103c', '#00f0ff', '#330066'];
 
@@ -325,16 +338,18 @@
                 ctx.arc(150, 150, 150, i * anglePerSegment, (i + 1) * anglePerSegment);
                 ctx.fillStyle = colors[i % colors.length];
                 ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#2a1b5c';
                 ctx.stroke();
 
-                // Add numbers/labels to slices
+                // Draw standard lightning nodes so slices look visually active
                 ctx.save();
                 ctx.translate(150, 150);
                 ctx.rotate(i * anglePerSegment + anglePerSegment / 2);
                 ctx.textAlign = 'right';
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 16px sans-serif';
-                ctx.fillText(`⚡`, 130, 5);
+                ctx.fillText(`⚡`, 120, 5);
                 ctx.restore();
             }
         }
@@ -350,19 +365,28 @@
         // Spin Wheel Animation Logic
         function spinWheel() {
             if (isSpinning) return;
+            
+            // Safety check: if pool is empty, auto-reset it
+            if (activePools[currentMode].length === 0) {
+                activePools[currentMode] = [...masterDareBank[currentMode]];
+                alert(`All dares used in ${currentMode.toUpperCase()}! Resetting deck...🔄`);
+                drawWheel();
+            }
+
             isSpinning = true;
             document.getElementById('spinBtn').disabled = true;
             document.getElementById('dareDisplay').innerText = "Selecting your fate... 🔄";
             document.getElementById('cameraSection').style.display = 'none';
 
-            const pool = dareBank[currentMode];
+            const pool = activePools[currentMode];
             const segmentAngle = 360 / pool.length;
             
-            // Random target assignment
+            // Pick a completely random slice
             const winningIndex = Math.floor(Math.random() * pool.length);
-            // Calculate rotation to land exactly under top pointer (270 degrees)
+            
+            // Calculate precise deceleration angle to line up underneath the 270-degree header arrow
             const targetAngle = 270 - (winningIndex * segmentAngle) - (segmentAngle / 2);
-            const extraSpins = 5 * 360; // 5 full loops
+            const extraSpins = 5 * 360; 
             currentRotation += extraSpins + (targetAngle - (currentRotation % 360));
 
             canvas.style.transform = `rotate(${currentRotation}deg)`;
@@ -370,8 +394,19 @@
             setTimeout(() => {
                 isSpinning = false;
                 document.getElementById('spinBtn').disabled = false;
-                document.getElementById('dareDisplay').innerText = pool[winningIndex];
-                initCamera(); // Activate camera module automatically upon dare assignment
+                
+                // Extract and remove chosen item so it can't repeat
+                const finalDare = pool.splice(winningIndex, 1)[0];
+                document.getElementById('dareDisplay').innerText = finalDare;
+                
+                // Redraw wheel to eliminate a wedge for the next player
+                if(pool.length === 0) {
+                     // Prepare immediately for next spin cycle round
+                     activePools[currentMode] = [...masterDareBank[currentMode]];
+                }
+                
+                drawWheel();
+                initCamera(); 
             }, 4000);
         }
 
@@ -397,14 +432,19 @@
 
         function startRecording() {
             recordedChunks = [];
-            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            let options = { mimeType: 'video/webm' };
+            if (!MediaRecorder.isTypeSupported('video/webm')) {
+                options = { mimeType: 'video/mp4' }; // Fallback for iOS configurations
+            }
+            
+            mediaRecorder = new MediaRecorder(stream, options);
             
             mediaRecorder.ondataavailable = (e) => {
                 if (e.data.size > 0) recordedChunks.push(e.data);
             };
 
             mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
                 const videoURL = URL.createObjectURL(blob);
                 const playback = document.getElementById('playback');
                 playback.src = videoURL;
@@ -427,10 +467,11 @@
         }
 
         function shareToGroup() {
-            // Native Share API or falling back to mimicking group update
             if (navigator.share && recordedChunks.length > 0) {
-                const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                const file = new File([blob], "dare_proof.webm", { type: "video/webm" });
+                const mimeType = mediaRecorder.mimeType || 'video/webm';
+                const extension = mimeType.includes('mp4') ? 'mp4' : 'webm';
+                const blob = new Blob(recordedChunks, { type: mimeType });
+                const file = new File([blob], `dare_proof.${extension}`, { type: mimeType });
                 
                 navigator.share({
                     files: [file],
@@ -442,7 +483,7 @@
             }
         }
 
-        // Initial paint loop
+        // Initial setup paint
         drawWheel();
     </script>
 </body>
