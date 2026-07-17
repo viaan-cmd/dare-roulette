@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dare Roulette 🎲</title>
+    <style>
+        :root {
+            --bg-color: #0f0c1b;
+            --primary: #ff007f;
+            --secondary: #7000ff;
+            --accent: #00f0ff;
+            --text: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c1b 0%, #1a103c 100%);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 0, 127, 0.5);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        /* --- WHEEL SECTION --- */
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 10px;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid var(--accent);
+            z-index: 10;
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #2a1b5c;
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.15, 0.85, 0.35, 1);
+            box-shadow: 0 0 30px rgba(112, 0, 255, 0.4);
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: var(--text);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        /* --- CONTROLS & DISPLAY --- */
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 0, 127, 0.4);
+            transition: 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 25px rgba(255, 0, 127, 0.7);
+        }
+
+        .btn:disabled {
+            background: #444;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .dare-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+        }
+
+        .dare-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        /* --- CAMERA & VIDEO SECTION --- */
+        .camera-section {
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid var(--secondary);
+            background: #000;
+            aspect-ratio: 4/3;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .recording-dot {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 15px;
+            height: 15px;
+            background-color: red;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            display: none;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .action-btns .btn {
+            flex: 1;
+            padding: 12px 10px;
+            font-size: 0.9rem;
+        }
+
+        .btn-record { background: #ff3333; box-shadow: 0 4px 15px rgba(255,51,51,0.4); }
+        .btn-stop { background: #333; }
+        .btn-share { background: #00e676; box-shadow: 0 4px 15px rgba(0,230,118,0.4); }
+
+        /* --- INTENSITY SELECTOR --- */
+        .intensity-selector {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .intensity-btn {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .intensity-btn.active {
+            background: var(--secondary);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Dare Roulette 🎲</h1>
+    </header>
+
+    <div class="container">
+        
+        <!-- Difficulty/Intensity Filter -->
+        <div class="intensity-selector">
+            <button class="intensity-btn active" onclick="setMode('chill', this)">Chill</button>
+            <button class="intensity-btn" onclick="setMode('wild', this)">Wild</button>
+            <button class="intensity-btn" onclick="setMode('extreme', this)">Extreme</button>
+        </div>
+
+        <!-- Roulette Wheel -->
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <div class="wheel-center"></div>
+            <canvas id="wheelCanvas" width="300" height="300" class="wheel"></canvas>
+        </div>
+
+        <button id="spinBtn" class="btn" onclick="spinWheel()">Spin the Wheel</button>
+
+        <!-- Dare Outcome Display -->
+        <div class="dare-box">
+            <div id="dareDisplay" class="dare-text">Press Spin to get a Dare! 🤔</div>
+        </div>
+
+        <!-- Built-in Proof Recorder -->
+        <div id="cameraSection" class="camera-section">
+            <h3 style="margin:0; color: var(--accent);">🎥 Capture Your Proof</h3>
+            <div class="video-wrapper">
+                <div id="recordDot" class="recording-dot"></div>
+                <video id="preview" autoplay muted playsinline></video>
+                <video id="playback" style="display:none;" controls></video>
+            </div>
+            
+            <div class="action-buttons style="width:100%">
+                <div class="action-btns">
+                    <button id="startRecBtn" class="btn btn-record" onclick="startRecording()">Record</button>
+                    <button id="stopRecBtn" class="btn btn-stop" onclick="stopRecording()" disabled>Stop</button>
+                    <button id="shareBtn" class="btn btn-share" onclick="shareToGroup()" disabled>Send to Group</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Dare database divided by tiers
+        const dareBank = {
+            chill: [
+                "Text your crush just the word 'Pineapple' and don't reply.",
+                "Do 20 pushups while singing your national anthem.",
+                "Let the group talk for 1 minute using only emojis.",
+                "Talk in an accent chosen by the group for the next 3 minutes.",
+                "Call a random contact and sing 'Happy Birthday' then hang up."
+            ],
+            wild: [
+                "Smell the bare foot of the person to your right.",
+                "Let a friend scroll through your camera roll for 30 seconds.",
+                "Post a terribly unflattering selfie to your story right now.",
+                "Mix 3 random liquids from the kitchen and take a shot.",
+                "Put ice cubes down your pants and keep them there for 30 seconds."
+            ],
+            extreme: [
+                "Call a pizza place and try to break up with them.",
+                "Let the group text anything they want to your 3rd recent text contact.",
+                "Eat a raw piece of garlic or a spoonful of hot sauce right now.",
+                "Go outside and yell 'I AM THE LIZARD KING' at the top of your lungs.",
+                "Crack a raw egg over your head."
+            ]
+        };
+
+        let currentMode = 'chill';
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        let currentRotation = 0;
+        let isSpinning = false;
+
+        // Draw custom Canvas Wheel based on current pool length
+        function drawWheel() {
+            const items = dareBank[currentMode];
+            const numSegments = items.length;
+            const anglePerSegment = (2 * Math.PI) / numSegments;
+            const colors = ['#ff007f', '#7000ff', '#1a103c', '#00f0ff', '#330066'];
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < numSegments; i++) {
+                ctx.beginPath();
+                ctx.moveTo(150, 150);
+                ctx.arc(150, 150, 150, i * anglePerSegment, (i + 1) * anglePerSegment);
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.stroke();
+
+                // Add numbers/labels to slices
+                ctx.save();
+                ctx.translate(150, 150);
+                ctx.rotate(i * anglePerSegment + anglePerSegment / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText(`⚡`, 130, 5);
+                ctx.restore();
+            }
+        }
+
+        function setMode(mode, btnElement) {
+            if (isSpinning) return;
+            currentMode = mode;
+            document.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            drawWheel();
+        }
+
+        // Spin Wheel Animation Logic
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('dareDisplay').innerText = "Selecting your fate... 🔄";
+            document.getElementById('cameraSection').style.display = 'none';
+
+            const pool = dareBank[currentMode];
+            const segmentAngle = 360 / pool.length;
+            
+            // Random target assignment
+            const winningIndex = Math.floor(Math.random() * pool.length);
+            // Calculate rotation to land exactly under top pointer (270 degrees)
+            const targetAngle = 270 - (winningIndex * segmentAngle) - (segmentAngle / 2);
+            const extraSpins = 5 * 360; // 5 full loops
+            currentRotation += extraSpins + (targetAngle - (currentRotation % 360));
+
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                isSpinning = false;
+                document.getElementById('spinBtn').disabled = false;
+                document.getElementById('dareDisplay').innerText = pool[winningIndex];
+                initCamera(); // Activate camera module automatically upon dare assignment
+            }, 4000);
+        }
+
+        // Camera & Recording Engine
+        let mediaRecorder;
+        let recordedChunks = [];
+        let stream;
+
+        async function initCamera() {
+            document.getElementById('cameraSection').style.display = 'flex';
+            document.getElementById('preview').style.display = 'block';
+            document.getElementById('playback').style.display = 'none';
+            document.getElementById('shareBtn').disabled = true;
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
+                document.getElementById('preview').srcObject = stream;
+            } catch (err) {
+                console.error("Camera access denied or unavailable", err);
+                alert("Please enable camera access to record your dare proof!");
+            }
+        }
+
+        function startRecording() {
+            recordedChunks = [];
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const videoURL = URL.createObjectURL(blob);
+                const playback = document.getElementById('playback');
+                playback.src = videoURL;
+                document.getElementById('preview').style.display = 'none';
+                playback.style.display = 'block';
+                document.getElementById('shareBtn').disabled = false;
+            };
+
+            mediaRecorder.start();
+            document.getElementById('recordDot').style.display = 'block';
+            document.getElementById('startRecBtn').disabled = true;
+            document.getElementById('stopRecBtn').disabled = false;
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            document.getElementById('recordDot').style.display = 'none';
+            document.getElementById('startRecBtn').disabled = false;
+            document.getElementById('stopRecBtn').disabled = true;
+        }
+
+        function shareToGroup() {
+            // Native Share API or falling back to mimicking group update
+            if (navigator.share && recordedChunks.length > 0) {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const file = new File([blob], "dare_proof.webm", { type: "video/webm" });
+                
+                navigator.share({
+                    files: [file],
+                    title: 'Dare Roulette Proof!',
+                    text: `I just completed this dare: "${document.getElementById('dareDisplay').innerText}"`
+                }).catch(console.error);
+            } else {
+                alert("🔥 Video shared successfully to your Friend Group chat! (Simulated)");
+            }
+        }
+
+        // Initial paint loop
+        drawWheel();
+    </script>
+</body>
+</html>
