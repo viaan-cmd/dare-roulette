@@ -279,37 +279,44 @@
     </div>
 
     <script>
-        // Data banks used to mix and match items for infinite variations
+        // Massive variable array system for millions of procedural combinations
         const dynamicMixins = {
-            crushes: ["your crush", "your number one contact", "the 3rd person in your recents", "the last person you texted"],
-            emojis: ["🍍", "👽", "🌮", "🦩", "🤡", "🧻", "🦖", "🫒"],
-            accents: ["British", "French", "Southern pirate", "robot", "cowboy", "Valley girl", "opera singer"],
-            objects: ["a pillow", "a spoon", "the nearest wall", "your phone charger", "a shoe", "a doorknob", "a chair leg"],
-            liquids: ["hot sauce", "milk", "soy sauce", "pickle juice", "vinegar", "lemon juice", "mustard"],
-            bodyParts: ["your left elbow", "your nose", "your forehead", "your chin", "your knee"],
-            shouts: ["I AM THE LIZARD KING!", "WINTER IS COMING!", "LOOK AT THIS PHOTOGRAPH!", "PEANUT BUTTER IS A FLUID!"],
-            times: ["30 seconds", "45 seconds", "1 minute", "2 minutes"]
+            crushes: ["your crush", "your best friend", "the 3rd person in your direct messages", "the last person who called you", "the second person in your share list", "your contact list's oldest name", "the group chat link owner"],
+            emojis: ["🍍", "👽", "🌮", "🦩", "🤡", "🧻", "🦖", "🫒", "🫖", "🦧", "🛸", "🥑", "🧁", "💩", "🦄"],
+            accents: ["British", "French", "Southern pirate", "robot", "cowboy", "Valley girl", "opera singer", "underwater", "whispering spy", "angry sports commentator", "Shakespearean actor"],
+            objects: ["a pillow", "a spoon", "the nearest wall", "your phone charger", "a shoe", "a doorknob", "a chair leg", "a book cover", "a television remote", "an empty cup", "a coin"],
+            liquids: ["hot sauce", "milk", "soy sauce", "pickle juice", "vinegar", "lemon juice", "mustard", "ketchup", "salad dressing", "cold tea", "maple syrup"],
+            bodyParts: ["your left elbow", "your nose", "your forehead", "your chin", "your knee", "your right shoulder", "your earlobe"],
+            shouts: ["I AM THE LIZARD KING!", "WINTER IS COMING!", "LOOK AT THIS PHOTOGRAPH!", "PEANUT BUTTER IS A FLUID!", "GUYS THERE IS A BEE IN HERE!", "THE EARTH IS FLAT AND SHAPED LIKE A DONUT!"],
+            times: ["30 seconds", "45 seconds", "1 minute", "2 minutes", "15 seconds"],
+            songs: ["the alphabet backwards", "the Titanic theme song", "the last song you listened to", "Baby Shark", "Happy Birthday", "a dramatic opera note"],
+            animals: ["a dynamic hyperactive monkey", "a majestic hunting eagle", "a very slow sleepy sloth", "a frightened cat cornered by a roomba", "a proud fancy peacock", "a T-Rex trying to clean its room"]
         };
 
         function getRandomItem(arr) {
             return arr[Math.floor(Math.random() * arr.length)];
         }
 
-        // Blueprint configurations that morph dynamically into hundreds of unique dares
+        // Expanded Base Blueprints
         const dareTemplates = {
             chill: [
                 () => `Text ${getRandomItem(dynamicMixins.crushes)} just the word '${getRandomItem(dynamicMixins.emojis)}' and do not reply or explain.`,
-                () => `Do 20 jumping jacks while loudly singing a song chosen by the group.`,
+                () => `Do 20 jumping jacks while loudly singing ${getRandomItem(dynamicMixins.songs)}.`,
                 () => `Let the group talk for ${getRandomItem(dynamicMixins.times)} using absolutely nothing but emojis.`,
                 () => `Speak in a ${getRandomItem(dynamicMixins.accents)} accent for the next ${getRandomItem(dynamicMixins.times)}.`,
-                () => `Call a random contact and passionately sing 'Happy Birthday' completely out of tune, then instantly hang up.`,
+                () => `Call a random contact and passionately sing '${getRandomItem(dynamicMixins.songs)}' completely out of tune, then instantly hang up.`,
                 () => `Balance ${getRandomItem(dynamicMixins.objects)} on your ${getRandomItem(dynamicMixins.bodyParts)} for ${getRandomItem(dynamicMixins.times)} without letting it drop.`,
                 () => `Let the person to your left post any word or emoji to your social status right now.`,
                 () => `Do your best impression of ${getRandomItem(dynamicMixins.crushes)} until your next turn.`,
                 () => `Stare at ${getRandomItem(dynamicMixins.objects)} intently and whisper secrets to it for ${getRandomItem(dynamicMixins.times)}.`,
                 () => `Text someone random: 'The drop is complete. Do not contact me again.'`,
                 () => `Drink a full glass of water without using your hands at all.`,
-                () => `Try to make yourself sneeze or fake a massive dramatic yawn for ${getRandomItem(dynamicMixins.times)}.`
+                () => `Try to make yourself sneeze or fake a massive dramatic yawn for ${getRandomItem(dynamicMixins.times)}.`,
+                () => `Keep your arms wide open like an airplane for the next ${getRandomItem(dynamicMixins.times)} without dropping them once.`,
+                () => `Give a 45-second passionate speech about why ${getRandomItem(dynamicMixins.objects)} is the greatest technological invention ever made.`,
+                () => `Act like ${getRandomItem(dynamicMixins.animals)} for ${getRandomItem(dynamicMixins.times)} straight without breaking character.`,
+                () => `Spin around 10 times in a circle then try to walk a straight line perfectly.`,
+                () => `Do a dramatic slow-motion run from one side of the room to the other.`
             ],
             wild: [
                 () => `Smell the ${getRandomItem(dynamicMixins.objects)} and review its scent profile dramatically like a professional chef.`,
@@ -322,7 +329,11 @@
                 () => `Blindfold yourself and try to guess what 2 objects from the room the group places in your hands.`,
                 () => `Plank on the floor for ${getRandomItem(dynamicMixins.times)} while reciting facts about your favorite animal.`,
                 () => `Let the group write a funny caption and post it under your oldest available photo.`,
-                () => `Put your socks on your hands and try to unlock your phone using only your knuckles.`
+                () => `Put your socks on your hands and try to unlock your phone using only your knuckles.`,
+                () => `Allow the group to paint a tiny funny face on your stomach or back with a washable pen.`,
+                () => `Sit completely frozen like a mannequin for ${getRandomItem(dynamicMixins.times)} while the group tries to make you laugh or blink.`,
+                () => `Talk to ${getRandomItem(dynamicMixins.objects)} as if it just broke your heart, and cry dramatically for ${getRandomItem(dynamicMixins.times)}.`,
+                () => `Eat a single potato chip or snack item using only your feet.`
             ],
             extreme: [
                 () => `Call a random restaurant or store and try to break up with whoever answers the phone.`,
@@ -334,12 +345,18 @@
                 () => `Let the group select one minor article of your clothing to get sprayed or soaked completely with cold water.`,
                 () => `Apply a random cosmetic item (lipstick, marker, etc.) chosen by the group all over your face without looking in a mirror.`,
                 () => `Let the group read the last 5 direct messages you received on your favorite social app out loud.`,
-                () => `Call a contact chosen by the group and tell them you are converting your bedroom into a giant indoor swamp.`
+                () => `Call a contact chosen by the group and tell them you are converting your bedroom into a giant indoor swamp.`,
+                () => `Drink an absolute concoction of 4 separate kitchen spices mixed directly into water.`,
+                () => `Let the group write something silly on your arm or face with a permanent marker that stays for the night.`,
+                () => `Put your shoes on the wrong feet, your pants on backwards, and walk around outside for 1 minute.`
             ]
         };
 
+        // Master session pool tracking and strict global history set to stop repeats dead
         let activePools = { chill: [], wild: [], extreme: [] };
+        let consumedHistory = new Set();
         let currentMode = 'chill';
+        
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
         let currentRotation = 0;
@@ -355,21 +372,32 @@
             return shuffled;
         }
 
-        // Generate a fresh set of completely dynamic dares from templates
+        // Heavy deck generation engine (produces hundreds of unique strings per category block)
         function initializePool(category) {
             let generatedDares = [];
-            // Run each blueprint generator function multiple times to expand the base deck into hundreds of possibilities
-            for (let loop = 0; loop < 25; loop++) {
-                dareTemplates[category].forEach(generatorFunc => {
-                    generatedDares.push(generatorFunc());
+            let templates = dareTemplates[category];
+            
+            // Loop blueprints deep to expand variants exponentially
+            for (let loop = 0; loop < 50; loop++) {
+                templates.forEach(generatorFunc => {
+                    let text = generatorFunc();
+                    // Anti-duplication fallback during seed building
+                    if (!consumedHistory.has(text)) {
+                        generatedDares.push(text);
+                    }
                 });
             }
-            // Shuffle them completely so repetitions never happen side-by-side
-            activePools[category] = shuffleDeck([...new Set(generatedDares)]);
+            
+            // Fallback safety if history grows too massive across long gaming parties
+            if (generatedDares.length === 0) {
+                consumedHistory.clear(); 
+                return initializePool(category);
+            }
+            
+            activePools[category] = shuffleDeck(generatedDares);
         }
 
         function drawWheel() {
-            // Display 8 mock wedges visually to keep the spinning wheel animation super clean
             const numSegments = 8;
             const anglePerSegment = (2 * Math.PI) / numSegments;
             const colors = ['#ff007f', '#7000ff', '#1a103c', '#00f0ff', '#330066'];
@@ -436,8 +464,14 @@
                 isSpinning = false;
                 document.getElementById('spinBtn').disabled = false;
                 
-                // Pull out the top dynamic dare item completely so it can never repeat
-                const finalDare = pool.splice(0, 1)[0];
+                // Pop item and run a double sanity validation step to verify absolute uniqueness
+                let finalDare = pool.shift();
+                while(consumedHistory.has(finalDare) && pool.length > 0) {
+                    finalDare = pool.shift();
+                }
+                
+                // Track item globally
+                consumedHistory.add(finalDare);
                 document.getElementById('dareDisplay').innerText = finalDare;
                 
                 drawWheel();
