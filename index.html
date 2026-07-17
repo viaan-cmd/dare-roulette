@@ -271,7 +271,7 @@
                 <div class="action-btns">
                     <button id="startRecBtn" class="btn btn-record" onclick="startRecording()">Record</button>
                     <button id="stopRecBtn" class="btn btn-stop" onclick="stopRecording()" disabled>Stop</button>
-                    <button id="shareBtn" class="btn btn-share" onclick="shareToGroup()" disabled>Send to Group</button>
+                    <button id="shareBtn" class="btn btn-share" onclick="shareToGroup()">Send to Group</button>
                 </div>
             </div>
         </div>
@@ -337,7 +337,7 @@
         // Draw custom Canvas Wheel based on active layout
         function drawWheel() {
             const currentItems = activePools[currentMode];
-            const numSegments = currentItems.length || 1; // Avoid divide by zero if empty
+            const numSegments = currentItems.length || 1;
             const anglePerSegment = (2 * Math.PI) / numSegments;
             const colors = ['#ff007f', '#7000ff', '#1a103c', '#00f0ff', '#330066'];
 
@@ -370,7 +370,6 @@
             document.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
             
-            // If the category is brand new or depleted, populate and mix it out of order immediately
             if (!activePools[currentMode] || activePools[currentMode].length === 0) {
                 initializePool(currentMode);
             }
@@ -381,7 +380,6 @@
         function spinWheel() {
             if (isSpinning) return;
             
-            // Check if active pool was depleted on a previous turn
             if (activePools[currentMode].length === 0) {
                 initializePool(currentMode);
                 alert(`All randomized dares used in ${currentMode.toUpperCase()}! Shuffling a fresh pack... 🔄`);
@@ -395,11 +393,8 @@
 
             const pool = activePools[currentMode];
             const segmentAngle = 360 / pool.length;
-            
-            // Pick an index randomly
             const winningIndex = Math.floor(Math.random() * pool.length);
             
-            // Spin animation logic to point seamlessly to the marker
             const targetAngle = 270 - (winningIndex * segmentAngle) - (segmentAngle / 2);
             const extraSpins = 5 * 360; 
             currentRotation += extraSpins + (targetAngle - (currentRotation % 360));
@@ -410,11 +405,9 @@
                 isSpinning = false;
                 document.getElementById('spinBtn').disabled = false;
                 
-                // Pull the item out entirely
                 const finalDare = pool.splice(winningIndex, 1)[0];
                 document.getElementById('dareDisplay').innerText = finalDare;
                 
-                // Redraw visual layout wedges instantly
                 drawWheel();
                 initCamera(); 
             }, 4000);
@@ -476,21 +469,43 @@
             document.getElementById('stopRecBtn').disabled = true;
         }
 
+        // Upgraded smart sharing engine with local download safety-net
         function shareToGroup() {
-            if (navigator.share && recordedChunks.length > 0) {
-                const mimeType = mediaRecorder.mimeType || 'video/webm';
-                const extension = mimeType.includes('mp4') ? 'mp4' : 'webm';
-                const blob = new Blob(recordedChunks, { type: mimeType });
+            if (recordedChunks.length === 0) {
+                alert("No video recorded yet!");
+                return;
+            }
+
+            const mimeType = mediaRecorder.mimeType || 'video/webm';
+            const extension = mimeType.includes('mp4') ? 'mp4' : 'webm';
+            const blob = new Blob(recordedChunks, { type: mimeType });
+
+            if (navigator.share) {
                 const file = new File([blob], `dare_proof.${extension}`, { type: mimeType });
                 
                 navigator.share({
                     files: [file],
                     title: 'Dare Roulette Proof!',
                     text: `I just completed this dare: "${document.getElementById('dareDisplay').innerText}"`
-                }).catch(console.error);
+                }).catch((err) => {
+                    console.log("Native web-share failed or dismissed. Using download fallback.", err);
+                    triggerDownloadFallback(blob, extension);
+                });
             } else {
-                alert("🔥 Video shared successfully to your Friend Group chat! (Simulated)");
+                // If browser straight up lacks system file sharing API capabilities
+                triggerDownloadFallback(blob, extension);
             }
+        }
+
+        function triggerDownloadFallback(blob, extension) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dare_proof.${extension}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            alert("📥 Your browser blocked the sharing pop-up, so the video was safely downloaded to your tablet roll instead! Attach it directly to your group chat now. 🔥");
         }
 
         // Initialize setup for first mode instantly on page boot
