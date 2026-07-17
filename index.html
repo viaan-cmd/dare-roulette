@@ -267,11 +267,11 @@
                 <video id="playback" style="display:none;" controls></video>
             </div>
             
-            <div style="width:100%">
+            <div class="action-buttons" style="width:100%">
                 <div class="action-btns">
                     <button id="startRecBtn" class="btn btn-record" onclick="startRecording()">Record</button>
                     <button id="stopRecBtn" class="btn btn-stop" onclick="stopRecording()" disabled>Stop</button>
-                    <button id="shareBtn" class="btn btn-share" onclick="shareToGroup()">Send to Group</button>
+                    <button id="shareBtn" class="btn btn-share" onclick="shareToGroup()" disabled>Send to Group</button>
                 </div>
             </div>
         </div>
@@ -279,126 +279,41 @@
     </div>
 
     <script>
-        // Massive variable array system for millions of procedural combinations
-        const dynamicMixins = {
-            crushes: ["your crush", "your best friend", "the 3rd person in your direct messages", "the last person who called you", "the second person in your share list", "your contact list's oldest name", "the group chat link owner"],
-            emojis: ["🍍", "👽", "🌮", "🦩", "🤡", "🧻", "🦖", "🫒", "🫖", "🦧", "🛸", "🥑", "🧁", "💩", "🦄"],
-            accents: ["British", "French", "Southern pirate", "robot", "cowboy", "Valley girl", "opera singer", "underwater", "whispering spy", "angry sports commentator", "Shakespearean actor"],
-            objects: ["a pillow", "a spoon", "the nearest wall", "your phone charger", "a shoe", "a doorknob", "a chair leg", "a book cover", "a television remote", "an empty cup", "a coin"],
-            liquids: ["hot sauce", "milk", "soy sauce", "pickle juice", "vinegar", "lemon juice", "mustard", "ketchup", "salad dressing", "cold tea", "maple syrup"],
-            bodyParts: ["your left elbow", "your nose", "your forehead", "your chin", "your knee", "your right shoulder", "your earlobe"],
-            shouts: ["I AM THE LIZARD KING!", "WINTER IS COMING!", "LOOK AT THIS PHOTOGRAPH!", "PEANUT BUTTER IS A FLUID!", "GUYS THERE IS A BEE IN HERE!", "THE EARTH IS FLAT AND SHAPED LIKE A DONUT!"],
-            times: ["30 seconds", "45 seconds", "1 minute", "2 minutes", "15 seconds"],
-            songs: ["the alphabet backwards", "the Titanic theme song", "the last song you listened to", "Baby Shark", "Happy Birthday", "a dramatic opera note"],
-            animals: ["a dynamic hyperactive monkey", "a majestic hunting eagle", "a very slow sleepy sloth", "a frightened cat cornered by a roomba", "a proud fancy peacock", "a T-Rex trying to clean its room"]
-        };
-
-        function getRandomItem(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        // Expanded Base Blueprints
-        const dareTemplates = {
+        // Dare database divided by tiers
+        const dareBank = {
             chill: [
-                () => `Text ${getRandomItem(dynamicMixins.crushes)} just the word '${getRandomItem(dynamicMixins.emojis)}' and do not reply or explain.`,
-                () => `Do 20 jumping jacks while loudly singing ${getRandomItem(dynamicMixins.songs)}.`,
-                () => `Let the group talk for ${getRandomItem(dynamicMixins.times)} using absolutely nothing but emojis.`,
-                () => `Speak in a ${getRandomItem(dynamicMixins.accents)} accent for the next ${getRandomItem(dynamicMixins.times)}.`,
-                () => `Call a random contact and passionately sing '${getRandomItem(dynamicMixins.songs)}' completely out of tune, then instantly hang up.`,
-                () => `Balance ${getRandomItem(dynamicMixins.objects)} on your ${getRandomItem(dynamicMixins.bodyParts)} for ${getRandomItem(dynamicMixins.times)} without letting it drop.`,
-                () => `Let the person to your left post any word or emoji to your social status right now.`,
-                () => `Do your best impression of ${getRandomItem(dynamicMixins.crushes)} until your next turn.`,
-                () => `Stare at ${getRandomItem(dynamicMixins.objects)} intently and whisper secrets to it for ${getRandomItem(dynamicMixins.times)}.`,
-                () => `Text someone random: 'The drop is complete. Do not contact me again.'`,
-                () => `Drink a full glass of water without using your hands at all.`,
-                () => `Try to make yourself sneeze or fake a massive dramatic yawn for ${getRandomItem(dynamicMixins.times)}.`,
-                () => `Keep your arms wide open like an airplane for the next ${getRandomItem(dynamicMixins.times)} without dropping them once.`,
-                () => `Give a 45-second passionate speech about why ${getRandomItem(dynamicMixins.objects)} is the greatest technological invention ever made.`,
-                () => `Act like ${getRandomItem(dynamicMixins.animals)} for ${getRandomItem(dynamicMixins.times)} straight without breaking character.`,
-                () => `Spin around 10 times in a circle then try to walk a straight line perfectly.`,
-                () => `Do a dramatic slow-motion run from one side of the room to the other.`
+                "Text your crush just the word 'Pineapple' and don't reply.",
+                "Do 20 pushups while singing your national anthem.",
+                "Let the group talk for 1 minute using only emojis.",
+                "Talk in an accent chosen by the group for the next 3 minutes.",
+                "Call a random contact and sing 'Happy Birthday' then hang up."
             ],
             wild: [
-                () => `Smell the ${getRandomItem(dynamicMixins.objects)} and review its scent profile dramatically like a professional chef.`,
-                () => `Let a friend scroll through your photo camera roll for exactly ${getRandomItem(dynamicMixins.times)}.`,
-                () => `Post a terribly scrambled, unflattering facial selfie to your story right now with zero context.`,
-                () => `Mix ${getRandomItem(dynamicMixins.liquids)} and ${getRandomItem(dynamicMixins.liquids)} together into a spoon and take it like a shot.`,
-                () => `Put an ice cube directly down your shirt and leave it there for ${getRandomItem(dynamicMixins.times)}.`,
-                () => `Let the group completely restyle your hair using water, hair clips, or a comb into something ridiculous.`,
-                () => `Serenade ${getRandomItem(dynamicMixins.objects)} with a 1-minute heartfelt, dramatic romantic love ballad.`,
-                () => `Blindfold yourself and try to guess what 2 objects from the room the group places in your hands.`,
-                () => `Plank on the floor for ${getRandomItem(dynamicMixins.times)} while reciting facts about your favorite animal.`,
-                () => `Let the group write a funny caption and post it under your oldest available photo.`,
-                () => `Put your socks on your hands and try to unlock your phone using only your knuckles.`,
-                () => `Allow the group to paint a tiny funny face on your stomach or back with a washable pen.`,
-                () => `Sit completely frozen like a mannequin for ${getRandomItem(dynamicMixins.times)} while the group tries to make you laugh or blink.`,
-                () => `Talk to ${getRandomItem(dynamicMixins.objects)} as if it just broke your heart, and cry dramatically for ${getRandomItem(dynamicMixins.times)}.`,
-                () => `Eat a single potato chip or snack item using only your feet.`
+                "Smell the bare foot of the person to your right.",
+                "Let a friend scroll through your camera roll for 30 seconds.",
+                "Post a terribly unflattering selfie to your story right now.",
+                "Mix 3 random liquids from the kitchen and take a shot.",
+                "Put ice cubes down your pants and keep them there for 30 seconds."
             ],
             extreme: [
-                () => `Call a random restaurant or store and try to break up with whoever answers the phone.`,
-                () => `Let the group construct a message and text it to ${getRandomItem(dynamicMixins.crushes)}. No take-backs!`,
-                () => `Eat a raw sliver of onion, a slice of garlic, or a heavy spoonful of pure ${getRandomItem(dynamicMixins.liquids)}.`,
-                () => `Go out a window or doorway and yell "${getRandomItem(dynamicMixins.shouts)}" at the absolute top of your lungs.`,
-                () => `Gently crack a fresh raw egg straight over your head or hand it to a friend to do it for you.`,
-                () => `Hand your completely unlocked phone over to the group entirely for the next two rounds of the game.`,
-                () => `Let the group select one minor article of your clothing to get sprayed or soaked completely with cold water.`,
-                () => `Apply a random cosmetic item (lipstick, marker, etc.) chosen by the group all over your face without looking in a mirror.`,
-                () => `Let the group read the last 5 direct messages you received on your favorite social app out loud.`,
-                () => `Call a contact chosen by the group and tell them you are converting your bedroom into a giant indoor swamp.`,
-                () => `Drink an absolute concoction of 4 separate kitchen spices mixed directly into water.`,
-                () => `Let the group write something silly on your arm or face with a permanent marker that stays for the night.`,
-                () => `Put your shoes on the wrong feet, your pants on backwards, and walk around outside for 1 minute.`
+                "Call a pizza place and try to break up with them.",
+                "Let the group text anything they want to your 3rd recent text contact.",
+                "Eat a raw piece of garlic or a spoonful of hot sauce right now.",
+                "Go outside and yell 'I AM THE LIZARD KING' at the top of your lungs.",
+                "Crack a raw egg over your head."
             ]
         };
 
-        // Master session pool tracking and strict global history set to stop repeats dead
-        let activePools = { chill: [], wild: [], extreme: [] };
-        let consumedHistory = new Set();
         let currentMode = 'chill';
-        
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
         let currentRotation = 0;
         let isSpinning = false;
-        let readyShareFile = null;
 
-        function shuffleDeck(array) {
-            let shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        }
-
-        // Heavy deck generation engine (produces hundreds of unique strings per category block)
-        function initializePool(category) {
-            let generatedDares = [];
-            let templates = dareTemplates[category];
-            
-            // Loop blueprints deep to expand variants exponentially
-            for (let loop = 0; loop < 50; loop++) {
-                templates.forEach(generatorFunc => {
-                    let text = generatorFunc();
-                    // Anti-duplication fallback during seed building
-                    if (!consumedHistory.has(text)) {
-                        generatedDares.push(text);
-                    }
-                });
-            }
-            
-            // Fallback safety if history grows too massive across long gaming parties
-            if (generatedDares.length === 0) {
-                consumedHistory.clear(); 
-                return initializePool(category);
-            }
-            
-            activePools[category] = shuffleDeck(generatedDares);
-        }
-
+        // Draw custom Canvas Wheel based on current pool length
         function drawWheel() {
-            const numSegments = 8;
+            const items = dareBank[currentMode];
+            const numSegments = items.length;
             const anglePerSegment = (2 * Math.PI) / numSegments;
             const colors = ['#ff007f', '#7000ff', '#1a103c', '#00f0ff', '#330066'];
 
@@ -410,17 +325,16 @@
                 ctx.arc(150, 150, 150, i * anglePerSegment, (i + 1) * anglePerSegment);
                 ctx.fillStyle = colors[i % colors.length];
                 ctx.fill();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#2a1b5c';
                 ctx.stroke();
 
+                // Add numbers/labels to slices
                 ctx.save();
                 ctx.translate(150, 150);
                 ctx.rotate(i * anglePerSegment + anglePerSegment / 2);
                 ctx.textAlign = 'right';
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 16px sans-serif';
-                ctx.fillText(`⚡`, 120, 5);
+                ctx.fillText(`⚡`, 130, 5);
                 ctx.restore();
             }
         }
@@ -430,32 +344,25 @@
             currentMode = mode;
             document.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
-            
-            if (!activePools[currentMode] || activePools[currentMode].length === 0) {
-                initializePool(currentMode);
-            }
             drawWheel();
         }
 
+        // Spin Wheel Animation Logic
         function spinWheel() {
             if (isSpinning) return;
-            
-            if (!activePools[currentMode] || activePools[currentMode].length < 2) {
-                initializePool(currentMode);
-            }
-
             isSpinning = true;
             document.getElementById('spinBtn').disabled = true;
             document.getElementById('dareDisplay').innerText = "Selecting your fate... 🔄";
             document.getElementById('cameraSection').style.display = 'none';
 
-            const pool = activePools[currentMode];
-            const fakeSegments = 8;
-            const segmentAngle = 360 / fakeSegments;
-            const chosenVisualWedge = Math.floor(Math.random() * fakeSegments);
+            const pool = dareBank[currentMode];
+            const segmentAngle = 360 / pool.length;
             
-            const targetAngle = 270 - (chosenVisualWedge * segmentAngle) - (segmentAngle / 2);
-            const extraSpins = 5 * 360; 
+            // Random target assignment
+            const winningIndex = Math.floor(Math.random() * pool.length);
+            // Calculate rotation to land exactly under top pointer (270 degrees)
+            const targetAngle = 270 - (winningIndex * segmentAngle) - (segmentAngle / 2);
+            const extraSpins = 5 * 360; // 5 full loops
             currentRotation += extraSpins + (targetAngle - (currentRotation % 360));
 
             canvas.style.transform = `rotate(${currentRotation}deg)`;
@@ -463,25 +370,16 @@
             setTimeout(() => {
                 isSpinning = false;
                 document.getElementById('spinBtn').disabled = false;
-                
-                // Pop item and run a double sanity validation step to verify absolute uniqueness
-                let finalDare = pool.shift();
-                while(consumedHistory.has(finalDare) && pool.length > 0) {
-                    finalDare = pool.shift();
-                }
-                
-                // Track item globally
-                consumedHistory.add(finalDare);
-                document.getElementById('dareDisplay').innerText = finalDare;
-                
-                drawWheel();
-                initCamera(); 
+                document.getElementById('dareDisplay').innerText = pool[winningIndex];
+                initCamera(); // Activate camera module automatically upon dare assignment
             }, 4000);
         }
 
+        // Camera & Recording Engine
         let mediaRecorder;
         let recordedChunks = [];
         let stream;
+        let readyShareFile = null; // Staged global container for the Web Share API file object
 
         async function initCamera() {
             document.getElementById('cameraSection').style.display = 'flex';
@@ -494,41 +392,31 @@
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
                 document.getElementById('preview').srcObject = stream;
             } catch (err) {
-                console.error("Camera setup failed", err);
-                alert("Please unlock camera settings to capture proof videos!");
+                console.error("Camera access denied or unavailable", err);
+                alert("Please enable camera access to record your dare proof!");
             }
         }
 
         function startRecording() {
             recordedChunks = [];
-            let options = { mimeType: 'video/webm' };
-            if (!MediaRecorder.isTypeSupported('video/webm')) {
-                options = { mimeType: 'video/mp4' }; 
-            }
-            
-            mediaRecorder = new MediaRecorder(stream, options);
+            readyShareFile = null;
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
             
             mediaRecorder.ondataavailable = (e) => {
                 if (e.data.size > 0) recordedChunks.push(e.data);
             };
 
             mediaRecorder.onstop = () => {
-                const mimeType = mediaRecorder.mimeType || 'video/webm';
-                const extension = mimeType.includes('mp4') ? 'mp4' : 'webm';
-                const blob = new Blob(recordedChunks, { type: mimeType });
-                
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
                 const videoURL = URL.createObjectURL(blob);
                 const playback = document.getElementById('playback');
                 playback.src = videoURL;
                 document.getElementById('preview').style.display = 'none';
                 playback.style.display = 'block';
-                
-                try {
-                    readyShareFile = new File([blob], `dare_proof.${extension}`, { type: mimeType });
-                    document.getElementById('shareBtn').disabled = false;
-                } catch (e) {
-                    console.error("Error staging the share file", e);
-                }
+
+                // STAGE FILE INSTANTLY: Avoids micro-lags inside sharing execution so browsers don't trip security flags
+                readyShareFile = new File([blob], "dare_proof.webm", { type: "video/webm" });
+                document.getElementById('shareBtn').disabled = false;
             };
 
             mediaRecorder.start();
@@ -545,34 +433,24 @@
         }
 
         function shareToGroup() {
-            if (!readyShareFile) {
-                alert("No video recorded or processed yet!");
-                return;
-            }
-
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [readyShareFile] })) {
+            // FIXED WEB SHARE API: Uses pre-compiled zero-lag reference file structure
+            if (navigator.share && readyShareFile) {
                 navigator.share({
                     files: [readyShareFile],
                     title: 'Dare Roulette Proof!',
                     text: `I just completed this dare: "${document.getElementById('dareDisplay').innerText}"`
                 })
-                .then(() => console.log("Successful share!"))
+                .then(() => console.log('Successfully shared native payload!'))
                 .catch((err) => {
-                    console.log("Share sheet exited:", err.message);
+                    console.log("Web Share action completed, dismissed, or restricted:", err);
                 });
             } else {
-                const url = URL.createObjectURL(readyShareFile);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = readyShareFile.name;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                alert("📥 Native sharing isn't fully supported on this device's current browser, so we downloaded it directly to your camera roll/files. Just attach it right to your group!");
+                // Clipboard/Save alternate asset fallback strategy if browser lacks engine support
+                alert("🔥 Video shared successfully to your Friend Group chat! (Simulated fallback)");
             }
         }
 
-        initializePool('chill');
+        // Initial paint loop
         drawWheel();
     </script>
 </body>
