@@ -310,12 +310,8 @@
             ]
         };
 
-        // Active game state pools (will change dynamically as dares get discarded)
-        let activePools = {
-            chill: [...masterDareBank.chill],
-            wild: [...masterDareBank.wild],
-            extreme: [...masterDareBank.extreme]
-        };
+        // Active game state pools
+        let activePools = { chill: [], wild: [], extreme: [] };
 
         let currentMode = 'chill';
         const canvas = document.getElementById('wheelCanvas');
@@ -323,10 +319,25 @@
         let currentRotation = 0;
         let isSpinning = false;
 
-        // Draw custom Canvas Wheel based on current active pool remaining size
+        // Fisher-Yates Random Shuffling Engine
+        function shuffleDeck(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Initialize and shuffle a category pool
+        function initializePool(category) {
+            activePools[category] = shuffleDeck(masterDareBank[category]);
+        }
+
+        // Draw custom Canvas Wheel based on active layout
         function drawWheel() {
             const currentItems = activePools[currentMode];
-            const numSegments = currentItems.length;
+            const numSegments = currentItems.length || 1; // Avoid divide by zero if empty
             const anglePerSegment = (2 * Math.PI) / numSegments;
             const colors = ['#ff007f', '#7000ff', '#1a103c', '#00f0ff', '#330066'];
 
@@ -342,7 +353,6 @@
                 ctx.strokeStyle = '#2a1b5c';
                 ctx.stroke();
 
-                // Draw standard lightning nodes so slices look visually active
                 ctx.save();
                 ctx.translate(150, 150);
                 ctx.rotate(i * anglePerSegment + anglePerSegment / 2);
@@ -359,17 +369,22 @@
             currentMode = mode;
             document.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
+            
+            // If the category is brand new or depleted, populate and mix it out of order immediately
+            if (!activePools[currentMode] || activePools[currentMode].length === 0) {
+                initializePool(currentMode);
+            }
             drawWheel();
         }
 
-        // Spin Wheel Animation Logic
+        // Spin Wheel Mechanics
         function spinWheel() {
             if (isSpinning) return;
             
-            // Safety check: if pool is empty, auto-reset it
+            // Check if active pool was depleted on a previous turn
             if (activePools[currentMode].length === 0) {
-                activePools[currentMode] = [...masterDareBank[currentMode]];
-                alert(`All dares used in ${currentMode.toUpperCase()}! Resetting deck...🔄`);
+                initializePool(currentMode);
+                alert(`All randomized dares used in ${currentMode.toUpperCase()}! Shuffling a fresh pack... 🔄`);
                 drawWheel();
             }
 
@@ -381,10 +396,10 @@
             const pool = activePools[currentMode];
             const segmentAngle = 360 / pool.length;
             
-            // Pick a completely random slice
+            // Pick an index randomly
             const winningIndex = Math.floor(Math.random() * pool.length);
             
-            // Calculate precise deceleration angle to line up underneath the 270-degree header arrow
+            // Spin animation logic to point seamlessly to the marker
             const targetAngle = 270 - (winningIndex * segmentAngle) - (segmentAngle / 2);
             const extraSpins = 5 * 360; 
             currentRotation += extraSpins + (targetAngle - (currentRotation % 360));
@@ -395,22 +410,17 @@
                 isSpinning = false;
                 document.getElementById('spinBtn').disabled = false;
                 
-                // Extract and remove chosen item so it can't repeat
+                // Pull the item out entirely
                 const finalDare = pool.splice(winningIndex, 1)[0];
                 document.getElementById('dareDisplay').innerText = finalDare;
                 
-                // Redraw wheel to eliminate a wedge for the next player
-                if(pool.length === 0) {
-                     // Prepare immediately for next spin cycle round
-                     activePools[currentMode] = [...masterDareBank[currentMode]];
-                }
-                
+                // Redraw visual layout wedges instantly
                 drawWheel();
                 initCamera(); 
             }, 4000);
         }
 
-        // Camera & Recording Engine
+        // Camera Engine Settings
         let mediaRecorder;
         let recordedChunks = [];
         let stream;
@@ -425,8 +435,8 @@
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
                 document.getElementById('preview').srcObject = stream;
             } catch (err) {
-                console.error("Camera access denied or unavailable", err);
-                alert("Please enable camera access to record your dare proof!");
+                console.error("Camera setup failed", err);
+                alert("Please unlock camera settings to capture proof videos!");
             }
         }
 
@@ -434,7 +444,7 @@
             recordedChunks = [];
             let options = { mimeType: 'video/webm' };
             if (!MediaRecorder.isTypeSupported('video/webm')) {
-                options = { mimeType: 'video/mp4' }; // Fallback for iOS configurations
+                options = { mimeType: 'video/mp4' }; 
             }
             
             mediaRecorder = new MediaRecorder(stream, options);
@@ -483,7 +493,8 @@
             }
         }
 
-        // Initial setup paint
+        // Initialize setup for first mode instantly on page boot
+        initializePool('chill');
         drawWheel();
     </script>
 </body>
